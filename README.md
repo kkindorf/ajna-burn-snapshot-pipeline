@@ -60,7 +60,7 @@ The deployed API is intentionally simple:
 
 1. GitHub Actions runs the sync job once per day, and on demand through `workflow_dispatch`.
 2. The workflow refreshes the `data/` directory from Etherscan logs.
-3. Vercel serves the repo root as a static site.
+3. Vercel skips install/build commands and serves the repo root as a static site.
 4. The frontend consumes the refreshed JSON snapshot directly.
 
 The refresh workflow uses an Etherscan API key. Set `ETHERSCAN_API_KEY` in your GitHub Actions secrets, and the job will use the Etherscan logs API to refresh the snapshot.
