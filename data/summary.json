@@ -1,0 +1,22 @@
+{
+  "chainId": 1,
+  "contractAddress": "0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079",
+  "originalSupplyRaw": "1000000000000000000000000000",
+  "originalSupplyFormatted": "1B AJNA",
+  "currentTotalSupplyRaw": "989323482943215100250784704",
+  "currentTotalSupplyFormatted": "989.3M AJNA",
+  "indexedBurnTotalRaw": "10676517056784899749215296",
+  "indexedBurnTotalFormatted": "10.7M AJNA",
+  "calculatedBurnTotalRaw": "10676517056784899749215296",
+  "calculatedBurnTotalFormatted": "10.7M AJNA",
+  "percentSupplyBurned": "1.068%",
+  "burnTransactionCount": 404,
+  "latestBurnTimestamp": 1785890831,
+  "latestBurnAmountFormatted": "2.7K AJNA",
+  "lastIndexedBlock": 25685234,
+  "generatedAt": "2026-08-21T21:34:08.130Z",
+  "dataConsistent": true,
+  "discrepancyRaw": "0",
+  "deploymentBlock": 15478977,
+  "deploymentTimestamp": 1662397146
+}
