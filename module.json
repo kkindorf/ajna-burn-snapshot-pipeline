@@ -3,7 +3,7 @@
   "id": "ajna-burn-snapshot",
   "kind": "snapshot-pipeline",
   "displayName": "AJNA Burn Snapshot",
-  "description": "Finality-aware AJNA ERC-20 burn history and supply snapshot.",
+  "description": "AJNA ERC-20 burn history and supply snapshot.",
   "owner": "@kkindorf",
   "runtime": {
     "node": ">=20.12.0",
@@ -17,10 +17,6 @@
     "coverage": "supply-reduction-burn-series",
     "coverageStartBlock": 18078582
   },
-  "finality": {
-    "strategy": "confirmation-depth",
-    "confirmationBlocks": 64
-  },
   "publication": {
     "mode": "committed-static-artifacts",
     "directory": "data",
@@ -31,8 +27,7 @@
     "manualDispatch": true
   },
   "provider": {
-    "requiredEnvironment": ["ETHERSCAN_API_KEY"],
-    "optionalEnvironment": ["ETHERSCAN_API_BASE_URL"]
+    "requiredEnvironment": ["ETHERSCAN_API_KEY"]
   },
   "outputs": [
     {

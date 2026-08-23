@@ -1,127 +1,75 @@
 # AJNA Burn Snapshot Pipeline
 
-This repository is a standalone data-snapshot pipeline for AJNA ERC-20 burn
-events. It retrieves burn transfers, converts them into a stable static
-snapshot, and publishes the result as JSON for frontend consumers.
-
-It is deliberately not a runtime API service. Vercel serves the generated
-files directly at:
-
-- `/data/summary.json`
-- `/data/burns.json`
-
-## Architecture
+This is a small scheduled job that turns AJNA burn transfers into two static
+JSON files for frontend use. It is not a runtime API.
 
 ```text
-scripts/sync-burns.ts
-  -> EtherscanBurnProvider.fetchRawLogs()
-  -> createBurnSnapshot(...)
-  -> writeBurnSnapshotToDisk(...)
-  -> data/summary.json + data/burns.json
+AJNA config -> Etherscan provider -> snapshot math -> data/*.json
 ```
 
-The boundaries are intentional:
+## Read these files first
 
-- `src/providers/etherscan/EtherscanBurnProvider.ts` owns all Etherscan REST
-  concerns: API-key validation, request URLs, request pacing, timeouts,
-  bounded retries, response handling, filtering, finality, and pagination.
-- `src/providers/burnLogProvider.ts` is the source-neutral provider contract.
-  A future GraphQL, JSON-RPC, REST, or fixture provider can implement it
-  without changing snapshot logic.
-- `src/lib/format.ts` contains argument-driven, deterministic burn grouping,
-  supply math, and display formatting. It has no environment or network
-  dependency.
-- `scripts/lib/burnSnapshotStore.ts` receives its output directory explicitly;
-  it stages both artifacts, promotes them with rollback protection, and does
-  not depend on the current working directory.
-- `src/config/ajna.ts` creates the module's static AJNA configuration. The
-  entrypoint supplies and validates runtime configuration, including the
-  Etherscan key.
+1. [`src/config/ajna.ts`](./src/config/ajna.ts) — the AJNA address, launch
+   supply, and the first block that belongs to the public burn series.
+2. [`scripts/sync-burns.ts`](./scripts/sync-burns.ts) — the whole job wired
+   together.
+3. [`src/providers/etherscan/fetchAjnaBurnData.ts`](./src/providers/etherscan/fetchAjnaBurnData.ts)
+   — the small AJNA-specific Etherscan request function.
+4. [`src/lib/createBurnSnapshot.ts`](./src/lib/createBurnSnapshot.ts) —
+   ordering, transaction grouping, supply reconciliation, and JSON-ready
+   formatting.
+5. [`src/types/`](./src/types/) — normalized provider data and the public
+   snapshot shapes, separated by how the pipeline uses them.
 
-`summary.json` exposes `indexedFromBlock` and `indexedThroughBlock`, the
-inclusive source-coverage boundary for the snapshot. The `etherscanUrl`
-transaction-link field remains unchanged.
+## What the sync checks
 
-## Data-integrity guarantees
+- It starts at block `18,078,582`. Earlier zero-address transfers are AJNA
+  allocation movements, not burns against the 1B launch-supply baseline.
+- It ignores valid zero-value ERC-20 transfer events.
+- It groups multiple burn logs from the same transaction and keeps them in
+  block/log order.
+- It compares the indexed burn total with `totalSupply()` before writing files.
+  If they disagree, the command fails and leaves deployment to the workflow.
 
-- The provider indexes AJNA's configured supply-reduction burn series from
-  block `18,078,582` and only through a 64-block confirmation boundary.
-  Earlier transfers to the zero address are allocation movements and are not
-  part of the 1B launch-supply burn accounting.
-- It reads `totalSupply()` at that same finalized block independently of the
-  transfer-log query. A supply/log discrepancy fails the sync before either
-  public JSON file is published.
-- Transient Etherscan errors (network failures, request timeouts, HTTP 429 or
-  5xx responses, and documented transient API messages) use bounded,
-  provider-owned retries. Permanent payload and configuration errors fail
-  immediately with a sanitized error message.
-- All pagination and range splitting is bounded. Repeated pages and
-  incomplete ranges fail closed instead of publishing partial data.
-- The store writes temporary files first and restores the prior pair if a
-  promotion fails. The subsequent Git commit remains the atomic deployment
-  boundary for the two static files.
+The Etherscan source function deliberately stays simple: it makes one historical
+query and follows normal API pages. A failed request fails the run; the next
+scheduled workflow run can try again.
 
-## Local development
+## Run it
 
-1. Install dependencies.
+Set `ETHERSCAN_API_KEY` in `.env` or your shell, then run:
 
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+npm run sync:burns
+npm run verify
+```
 
-2. Copy `.env.example` to `.env` and set `ETHERSCAN_API_KEY`. The endpoint
-   defaults to the canonical Etherscan V2 API and is validated before any
-   network request.
+The generated public files are:
 
-3. Generate a local snapshot.
+- `data/summary.json`
+- `data/burns.json`
 
-   ```bash
-   npm run sync:burns
-   ```
+## Future monorepo
 
-4. Verify the pipeline.
-
-   ```bash
-   npm run verify
-   ```
-
-Node.js 20.12.0 or newer is required; `.nvmrc` and the CI workflows use the
-same minimum version.
-
-## Monorepo readiness
-
-This repository is the reference implementation for an independently deployable
-snapshot module. Its machine-readable [module manifest](./module.json) declares
-ownership, source class, finality, cadence, runtime commands, and versioned
-public output schemas without exposing source credentials or request details.
-
-The eventual monorepo can place it directly under `apps/`, for example:
+This repository can become `apps/burn-pipeline/` without sharing runtime code
+with other data modules. Each module should own its source choice and its own
+small pipeline while following the same recognizable directory pattern:
 
 ```text
-apps/
-  burn-pipeline/
-    src/
-    scripts/
-    data/
+apps/burn-pipeline/
+├── data/
+├── scripts/
+├── src/
+│   ├── config/
+│   ├── lib/
+│   ├── providers/
+│   └── types/
+├── tests/
+├── module.json
+└── package.json
 ```
 
-No core module reads `process.env`, uses `process.cwd()`, or imports an
-Etherscan implementation. Only `scripts/sync-burns.ts` is a composition root
-that connects the configured provider, current time, filesystem output, and
-environment.
-
-The [Snapshot Module Contract](./docs/snapshot-module-contract.md) defines the
-portable boundaries every future pipeline follows. The
-[new-module guide](./docs/new-snapshot-module.md) provides the reusable module
-shape while deliberately avoiding a premature shared runtime package.
-
-## Deployment
-
-GitHub Actions runs the refresh workflow daily and on demand. It provides
-`ETHERSCAN_API_KEY`, runs `npm run sync:burns`, and commits changed JSON files.
-Vercel then serves the repository root as a static site.
-
-Before the first production deployment of this hardening release, run the
-**Refresh burn snapshot** workflow manually. This regenerates the checked-in
-artifacts with burn-series-to-finality coverage, correctly ordered cumulative
-values, and the independent supply reconciliation check.
+[`module.json`](./module.json) is the catalog entry point; the short
+[module contract](./docs/snapshot-module-contract.md) explains the few portable
+conventions.

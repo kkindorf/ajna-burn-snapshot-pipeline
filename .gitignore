@@ -7,6 +7,3 @@ dist
 coverage
 *.log
 *.tsbuildinfo
-data/*.tmp.json
-data/.*.tmp.json
-data/.*.backup.json

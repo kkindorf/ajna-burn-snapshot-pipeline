@@ -1,63 +1,38 @@
 # Starting a New Snapshot Module
 
-Use this guide when adding a second snapshot module to the future monorepo.
-Copy the module shape and contract from AJNA; do not copy its Etherscan provider
-or burn-domain logic unless the new module genuinely needs them.
-
-## Start with the package boundary
-
-Create the new application at `apps/<module-id>/` using this layout:
+Start each app with the same recognizable package shape:
 
 ```text
 apps/<module-id>/
-├── module.json
-├── package.json
-├── .env.example
+├── data/
+├── scripts/
+│   └── sync.ts
 ├── src/
 │   ├── config/
 │   ├── lib/
 │   ├── providers/
+│   │   └── <source>/
 │   └── types/
-├── scripts/
-│   ├── lib/
-│   └── sync.ts
 ├── tests/
 │   └── fixtures/
-└── data/
+├── module.json
+└── package.json
 ```
 
-The AJNA package is the working reference for this structure. Its boundaries
-are portable; its protocol configuration, output schemas, and Etherscan
-implementation are intentionally local.
+1. Pick the source that fits that module: a subgraph, JSON-RPC, a REST API, or
+   something else entirely.
+2. Put protocol facts in `src/config/` and keep secrets in the sync script's
+   environment boundary.
+3. Put source-specific requests and response parsing in
+   `src/providers/<source>/`.
+4. Split `src/types/` by real usage boundaries, such as normalized source data
+   and published snapshot data.
+5. Keep deterministic transformations in `src/lib/` and file/network access
+   out of those functions.
+6. Cover the transformation and source parsing with local fixtures.
+7. Expose `sync` and `verify` commands, then add a scoped refresh workflow.
 
-## Creation checklist
-
-1. Choose the source best suited to the module: Subgraph, JSON-RPC, REST,
-   Etherscan, a database export, or another source-specific adapter.
-2. Define normalized source-neutral records in `src/types/` before writing
-   formatting or artifact code.
-3. Put only static protocol settings in `src/config/`; validate secrets and
-   runtime overrides in the executable entrypoint.
-4. Keep all network transport, pagination, retry, and payload parsing inside
-   the selected provider.
-5. Make transformations in `src/lib/` deterministic and explicit about every
-   input, including time and configuration.
-6. Declare public artifacts, schema IDs, schema versions, source metadata,
-   cadence, finality, and ownership in `module.json`.
-7. Add fixture-backed tests before connecting the module to a live source.
-8. Expose `sync` and `verify` package commands. `verify` must run lint,
-   formatting verification, tests, and type checking.
-9. Add a root-level workflow named `.github/workflows/<module-id>-refresh.yml`
-   with a module-specific concurrency group and minimal secret set.
-10. Document the freshness and coverage fields consumers should use when
-    reading the published data.
-
-## Before extracting shared code
-
-Keep module code local until a second real module proves the same behavior is
-needed. A common provider interface, retry utility, release manifest, or
-workspace package should be extracted only when it reduces duplicated behavior
-without hiding source-specific correctness rules.
-
-Read the full [Snapshot Module Contract](./snapshot-module-contract.md) before
-opening the module for consumer use.
+Use the [module contract](./snapshot-module-contract.md) for the portable
+boundaries. Do not copy AJNA's Etherscan details into another module unless
+they are genuinely needed there. Add a `contracts/` directory only when a
+module actually owns an ABI or generated contract binding.

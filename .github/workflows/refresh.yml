@@ -34,7 +34,6 @@ jobs:
         run: npm run sync:burns
         env:
           ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
-          ETHERSCAN_API_BASE_URL: https://api.etherscan.io/v2/api
 
       - name: Commit updated snapshot
         run: |
