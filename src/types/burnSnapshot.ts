@@ -1,5 +1,6 @@
+/** One JSON-ready burn transaction in data/burns.json. */
 export interface BurnTransaction {
-  transactionHash: `0x${string}`;
+  transactionHash: string;
   blockNumber: number;
   timestamp: number;
   date: string;
@@ -12,9 +13,10 @@ export interface BurnTransaction {
   etherscanUrl: string;
 }
 
+/** The public contents of data/summary.json. */
 export interface BurnSummary {
   chainId: number;
-  contractAddress: `0x${string}`;
+  contractAddress: string;
   originalSupplyRaw: string;
   originalSupplyFormatted: string;
   currentTotalSupplyRaw: string;
@@ -29,15 +31,16 @@ export interface BurnSummary {
   latestBurnAmountFormatted: string | null;
   lastIndexedBlock: number;
   generatedAt: string;
+  indexedFromBlock: number;
+  indexedThroughBlock: number;
   dataConsistent: boolean;
   discrepancyRaw: string;
   deploymentBlock: number;
   deploymentTimestamp: number;
 }
 
-export interface BurnLogRecord {
-  transactionHash: `0x${string}`;
-  logIndex: number;
-  blockNumber: number;
-  amountBurnedRaw: bigint;
+/** Both files produced by one successful snapshot run. */
+export interface BurnSnapshot {
+  burns: BurnTransaction[];
+  summary: BurnSummary;
 }

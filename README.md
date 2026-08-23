@@ -1,78 +1,75 @@
-# AJNA Burn Monitor API
+# AJNA Burn Snapshot Pipeline
 
-This repo produces the static AJNA burn snapshot that powers the frontend.
+This is a small scheduled job that turns AJNA burn transfers into two static
+JSON files for frontend use. It is not a runtime API.
 
-It:
+```text
+AJNA config -> Etherscan provider -> snapshot math -> data/*.json
+```
 
-- pulls AJNA burn logs from Etherscan
-- normalizes them into a stable snapshot
-- writes `data/summary.json` and `data/burns.json`
-- deploys as a static site on Vercel
+## Read these files first
 
-The snapshot tracks raw AJNA ERC-20 burn transfers to the zero address, not subgraph summary entities.
+1. [`src/config/ajna.ts`](./src/config/ajna.ts) — the AJNA address, launch
+   supply, and the first block that belongs to the public burn series.
+2. [`scripts/sync-burns.ts`](./scripts/sync-burns.ts) — the whole job wired
+   together.
+3. [`src/providers/etherscan/fetchAjnaBurnData.ts`](./src/providers/etherscan/fetchAjnaBurnData.ts)
+   — the small AJNA-specific Etherscan request function.
+4. [`src/lib/createBurnSnapshot.ts`](./src/lib/createBurnSnapshot.ts) —
+   ordering, transaction grouping, supply reconciliation, and JSON-ready
+   formatting.
+5. [`src/types/`](./src/types/) — normalized provider data and the public
+   snapshot shapes, separated by how the pipeline uses them.
 
-The frontend reads the JSON directly from the deployed origin at:
+## What the sync checks
 
-- `/data/summary.json`
-- `/data/burns.json`
+- It starts at block `18,078,582`. Earlier zero-address transfers are AJNA
+  allocation movements, not burns against the 1B launch-supply baseline.
+- It ignores valid zero-value ERC-20 transfer events.
+- It groups multiple burn logs from the same transaction and keeps them in
+  block/log order.
+- It compares the indexed burn total with `totalSupply()` before writing files.
+  If they disagree, the command fails and leaves deployment to the workflow.
 
-## Local development
+The Etherscan source function deliberately stays simple: it makes one historical
+query and follows normal API pages. A failed request fails the run; the next
+scheduled workflow run can try again.
 
-1. Install dependencies:
+## Run it
 
-   ```bash
-   npm install
-   ```
+Set `ETHERSCAN_API_KEY` in `.env` or your shell, then run:
 
-2. Set up environment variables:
+```bash
+npm install
+npm run sync:burns
+npm run verify
+```
 
-   - Copy `.env.example` to `.env`
-   - Set `ETHERSCAN_API_KEY`
-   - Optionally override `ETHERSCAN_API_BASE_URL` if you want to point at a different Etherscan endpoint
-   - The sync script loads `.env` automatically from the repo root
+The generated public files are:
 
-3. Refresh the local snapshot:
+- `data/summary.json`
+- `data/burns.json`
 
-   ```bash
-   npm run sync:burns
-   ```
+## Future monorepo
 
-4. Run checks:
+This repository can become `apps/burn-pipeline/` without sharing runtime code
+with other data modules. Each module should own its source choice and its own
+small pipeline while following the same recognizable directory pattern:
 
-   ```bash
-   npm test
-   npm run typecheck
-   npm run lint
-   ```
+```text
+apps/burn-pipeline/
+├── data/
+├── scripts/
+├── src/
+│   ├── config/
+│   ├── lib/
+│   ├── providers/
+│   └── types/
+├── tests/
+├── module.json
+└── package.json
+```
 
-## Scripts
-
-- `npm run sync:burns` - fetch AJNA burn data from Etherscan and write the JSON snapshot
-- `npm test` - run the Vitest suite
-- `npm run typecheck` - run TypeScript checks
-- `npm run lint` - run ESLint
-- `npm run format` - format the codebase with Prettier
-- `npm run format:check` - check formatting without writing changes
-
-## Deployment
-
-The deployed API is intentionally simple:
-
-1. GitHub Actions runs the sync job once per day, and on demand through `workflow_dispatch`.
-2. The workflow refreshes the `data/` directory from Etherscan logs.
-3. Vercel skips install/build commands and serves the repo root as a static site.
-4. The frontend consumes the refreshed JSON snapshot directly.
-
-The refresh workflow uses an Etherscan API key. Set `ETHERSCAN_API_KEY` in your GitHub Actions secrets, and the job will use the Etherscan logs API to refresh the snapshot.
-
-## Data
-
-- The burn series starts on September 6, 2023.
-- The snapshot is stored in `data/` so Vercel can serve it directly.
-- The repo root includes a small `index.html` that links to the JSON endpoints for quick inspection.
-
-## Notes
-
-- The API repo does not calculate burn totals in the browser.
-- The frontend reads the snapshot at runtime and keeps the UI separate from the refresh pipeline.
-- AJNA burns are raw ERC-20 `Transfer` events to `0x0000000000000000000000000000000000000000`.
+[`module.json`](./module.json) is the catalog entry point; the short
+[module contract](./docs/snapshot-module-contract.md) explains the few portable
+conventions.

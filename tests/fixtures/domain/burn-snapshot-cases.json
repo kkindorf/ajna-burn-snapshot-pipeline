@@ -1,0 +1,49 @@
+{
+  "main": {
+    "indexedThroughBlock": 18078630,
+    "currentTotalSupplyRaw": "994000000000000000000000000",
+    "logs": [
+      {
+        "transactionHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "logIndex": 0,
+        "blockNumber": 18078630,
+        "timestamp": 1700000000,
+        "amountBurnedRaw": "3000000000000000000000000"
+      },
+      {
+        "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "logIndex": 1,
+        "blockNumber": 18078600,
+        "timestamp": 1690000000,
+        "amountBurnedRaw": "2000000000000000000000000"
+      },
+      {
+        "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "logIndex": 0,
+        "blockNumber": 18078600,
+        "timestamp": 1690000000,
+        "amountBurnedRaw": "1000000000000000000000000"
+      }
+    ]
+  },
+  "sameBlock": {
+    "indexedThroughBlock": 18078630,
+    "currentTotalSupplyRaw": "995000000000000000000000000",
+    "logs": [
+      {
+        "transactionHash": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "logIndex": 2,
+        "blockNumber": 18078620,
+        "timestamp": 1700000000,
+        "amountBurnedRaw": "3000000000000000000000000"
+      },
+      {
+        "transactionHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "logIndex": 1,
+        "blockNumber": 18078620,
+        "timestamp": 1700000000,
+        "amountBurnedRaw": "2000000000000000000000000"
+      }
+    ]
+  }
+}

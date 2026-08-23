@@ -1,0 +1,40 @@
+{
+  "headBlock": {
+    "result": "0x113dbec"
+  },
+  "totalSupply": {
+    "result": "0x0000000000000000000000000000000000000000000000003782dace9d900000"
+  },
+  "logTemplate": {
+    "data": "0x00000000000000000000000000000000000000000000000029a2241af62c0000",
+    "blockNumber": "0x113db9c",
+    "timeStamp": "0x6553f100",
+    "logIndex": "0x",
+    "transactionHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "lastPage": {
+    "status": "1",
+    "message": "OK",
+    "result": [
+      {
+        "data": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+        "blockNumber": "0x113dba6",
+        "timeStamp": "0x6553f100",
+        "logIndex": "0x",
+        "transactionHash": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "zeroValueLog": {
+    "data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "blockNumber": "0x113db88",
+    "timeStamp": "0x64bb5a80",
+    "logIndex": "0x",
+    "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "apiError": {
+    "status": "0",
+    "message": "NOTOK",
+    "result": "Max rate limit reached, please try again"
+  }
+}

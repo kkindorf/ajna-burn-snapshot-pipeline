@@ -1,0 +1,53 @@
+{
+  "contractVersion": "1.0.0",
+  "id": "ajna-burn-snapshot",
+  "kind": "snapshot-pipeline",
+  "displayName": "AJNA Burn Snapshot",
+  "description": "AJNA ERC-20 burn history and supply snapshot.",
+  "owner": "@kkindorf",
+  "runtime": {
+    "node": ">=20.12.0",
+    "syncCommand": "npm run sync:burns",
+    "verifyCommand": "npm run verify"
+  },
+  "source": {
+    "adapter": "etherscan-v2",
+    "network": "ethereum-mainnet",
+    "chainId": 1,
+    "coverage": "supply-reduction-burn-series",
+    "coverageStartBlock": 18078582
+  },
+  "publication": {
+    "mode": "committed-static-artifacts",
+    "directory": "data",
+    "refreshWorkflow": ".github/workflows/refresh.yml"
+  },
+  "schedule": {
+    "cron": "0 0 * * *",
+    "manualDispatch": true
+  },
+  "provider": {
+    "requiredEnvironment": ["ETHERSCAN_API_KEY"]
+  },
+  "outputs": [
+    {
+      "id": "summary",
+      "path": "data/summary.json",
+      "schemaId": "ajna-burn-summary",
+      "schemaVersion": "1.1.0",
+      "stability": "public",
+      "freshness": {
+        "generatedAtField": "generatedAt",
+        "coverageStartField": "indexedFromBlock",
+        "coverageField": "indexedThroughBlock"
+      }
+    },
+    {
+      "id": "burns",
+      "path": "data/burns.json",
+      "schemaId": "ajna-burn-transactions",
+      "schemaVersion": "1.0.0",
+      "stability": "public"
+    }
+  ]
+}
