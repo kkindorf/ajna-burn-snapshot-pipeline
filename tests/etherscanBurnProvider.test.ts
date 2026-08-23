@@ -246,10 +246,6 @@ describe('EtherscanBurnProvider', () => {
         fixtureName: 'invalidRecipientRecord',
       },
       {
-        error: 'Zero-value burn transfer is not indexable',
-        fixtureName: 'zeroAmountRecord',
-      },
-      {
         error: 'outside the requested range',
         fixtureName: 'outOfRangeRecord',
       },
@@ -265,6 +261,17 @@ describe('EtherscanBurnProvider', () => {
     }
   });
 
+  it('ignores zero-value transfer events that do not change supply', async () => {
+    const fixture = await loadProviderFixture();
+
+    expect(
+      parseEtherscanBurnLogs(
+        [fixtureValue(fixture, 'zeroAmountRecord')],
+        parsingOptions(),
+      ),
+    ).toEqual([]);
+  });
+
   it('uses the finalized head, page sequence, and independent totalSupply call', async () => {
     const fixture = await loadProviderFixture();
     const requests: URL[] = [];
@@ -278,6 +285,7 @@ describe('EtherscanBurnProvider', () => {
       currentTotalSupplyRaw: 4n * 10n ** 18n,
       executionId: 'etherscan:1:130',
       headBlock: 135,
+      indexedFromBlock: 100,
       indexedThroughBlock: 130,
       source: 'etherscan',
     });
@@ -341,6 +349,7 @@ describe('EtherscanBurnProvider', () => {
 
     await expect(createProvider(fetch).fetchRawLogs()).resolves.toMatchObject({
       currentTotalSupplyRaw: 4n * 10n ** 18n,
+      indexedFromBlock: 100,
       indexedThroughBlock: 130,
       logs: [],
     });

@@ -35,6 +35,7 @@ export interface RawBurnLogs {
   currentTotalSupplyRaw: bigint;
   executionId: string;
   headBlock: number;
+  indexedFromBlock: number;
   indexedThroughBlock: number;
   logs: readonly BurnLogRecord[];
   source: string;
@@ -71,6 +72,7 @@ export interface BurnSummary {
   latestBurnAmountFormatted: string | null;
   lastIndexedBlock: number;
   generatedAt: string;
+  indexedFromBlock: number;
   indexedThroughBlock: number;
   dataConsistent: boolean;
   discrepancyRaw: string;

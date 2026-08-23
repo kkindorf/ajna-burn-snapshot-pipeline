@@ -84,6 +84,10 @@ export function parseRawBurnLogsFixture(value: unknown): RawBurnLogs {
       requireProperty(record, 'headBlock', 'raw burn logs'),
       'raw burn logs.headBlock',
     ),
+    indexedFromBlock: requireInteger(
+      requireProperty(record, 'indexedFromBlock', 'raw burn logs'),
+      'raw burn logs.indexedFromBlock',
+    ),
     indexedThroughBlock: requireInteger(
       requireProperty(record, 'indexedThroughBlock', 'raw burn logs'),
       'raw burn logs.indexedThroughBlock',

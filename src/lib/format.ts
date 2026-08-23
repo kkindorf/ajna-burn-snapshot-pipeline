@@ -43,6 +43,7 @@ export interface CalculateBurnSummaryInput {
   configuration: BurnSnapshotConfiguration;
   currentTotalSupplyRaw: bigint;
   generatedAt: string;
+  indexedFromBlock: number;
   indexedThroughBlock: number;
   lastIndexedBlock: number;
   transactions: readonly BurnTransaction[];
@@ -223,7 +224,13 @@ function normalizeRawBurnLogs(rawLogs: RawBurnLogs): RawBurnLogs {
     'current total supply',
   );
   assertSafeInteger(rawLogs.headBlock, 'source head block');
+  assertSafeInteger(rawLogs.indexedFromBlock, 'indexed-from block');
   assertSafeInteger(rawLogs.indexedThroughBlock, 'indexed-through block');
+  if (rawLogs.indexedFromBlock > rawLogs.indexedThroughBlock) {
+    throw new Error(
+      'Indexed-from block cannot exceed the indexed-through block.',
+    );
+  }
   if (rawLogs.indexedThroughBlock > rawLogs.headBlock) {
     throw new Error(
       'Indexed-through block cannot exceed the source head block.',
@@ -234,6 +241,7 @@ function normalizeRawBurnLogs(rawLogs: RawBurnLogs): RawBurnLogs {
     currentTotalSupplyRaw: rawLogs.currentTotalSupplyRaw,
     executionId: rawLogs.executionId.trim(),
     headBlock: rawLogs.headBlock,
+    indexedFromBlock: rawLogs.indexedFromBlock,
     indexedThroughBlock: rawLogs.indexedThroughBlock,
     logs: rawLogs.logs.map(normalizeBurnLog),
     source: rawLogs.source.trim(),
@@ -511,26 +519,26 @@ export function buildBurnTransactions({
     }
 
     return {
+      transactionHash: burn.transactionHash,
+      blockNumber: burn.blockNumber,
+      timestamp: burn.timestamp,
+      date: formatUtcDate(burn.timestamp),
+      amountBurnedRaw: burn.amountBurnedRaw.toString(),
       amountBurnedFormatted: formatCompactTokenAmount(
         burn.amountBurnedRaw,
         configuration.token,
       ),
-      amountBurnedRaw: burn.amountBurnedRaw.toString(),
-      blockNumber: burn.blockNumber,
+      cumulativeBurnedRaw: cumulativeBurnedRaw.toString(),
       cumulativeBurnedFormatted: formatCompactTokenAmount(
         cumulativeBurnedRaw,
         configuration.token,
       ),
-      cumulativeBurnedRaw: cumulativeBurnedRaw.toString(),
-      date: formatUtcDate(burn.timestamp),
-      etherscanUrl,
+      remainingSupplyRaw: remainingSupplyRaw.toString(),
       remainingSupplyFormatted: formatCompactTokenAmount(
         remainingSupplyRaw,
         configuration.token,
       ),
-      remainingSupplyRaw: remainingSupplyRaw.toString(),
-      timestamp: burn.timestamp,
-      transactionHash: burn.transactionHash,
+      etherscanUrl,
     };
   });
 }
@@ -539,6 +547,7 @@ export function calculateBurnSummary({
   configuration,
   currentTotalSupplyRaw,
   generatedAt,
+  indexedFromBlock,
   indexedThroughBlock,
   lastIndexedBlock,
   transactions,
@@ -549,7 +558,13 @@ export function calculateBurnSummary({
   if (currentTotalSupplyRaw > configuration.launchSupplyRaw) {
     throw new Error('Current total supply cannot exceed launch supply.');
   }
+  assertSafeInteger(indexedFromBlock, 'indexed-from block');
   assertSafeInteger(indexedThroughBlock, 'indexed-through block');
+  if (indexedFromBlock > indexedThroughBlock) {
+    throw new Error(
+      'Indexed-from block cannot exceed the indexed-through block.',
+    );
+  }
   assertSafeInteger(lastIndexedBlock, 'last indexed block');
   if (lastIndexedBlock > indexedThroughBlock) {
     throw new Error(
@@ -576,42 +591,43 @@ export function calculateBurnSummary({
   const latestBurn = transactions.at(-1) ?? null;
 
   return {
-    burnTransactionCount: transactions.length,
-    calculatedBurnTotalFormatted: formatCompactTokenAmount(
-      calculatedBurnTotalRaw,
-      configuration.token,
-    ),
-    calculatedBurnTotalRaw: calculatedBurnTotalRaw.toString(),
     chainId: configuration.chainId,
     contractAddress: configuration.contractAddress,
-    currentTotalSupplyFormatted: formatCompactTokenAmount(
-      currentTotalSupplyRaw,
-      configuration.token,
-    ),
-    currentTotalSupplyRaw: currentTotalSupplyRaw.toString(),
-    dataConsistent: discrepancyRaw === 0n,
-    deploymentBlock: configuration.deploymentBlock,
-    deploymentTimestamp: configuration.deploymentTimestamp,
-    discrepancyRaw: discrepancyRaw.toString(),
-    generatedAt,
-    indexedBurnTotalFormatted: formatCompactTokenAmount(
-      indexedBurnTotalRaw,
-      configuration.token,
-    ),
-    indexedBurnTotalRaw: indexedBurnTotalRaw.toString(),
-    indexedThroughBlock,
-    lastIndexedBlock,
-    latestBurnAmountFormatted: latestBurn?.amountBurnedFormatted ?? null,
-    latestBurnTimestamp: latestBurn?.timestamp ?? null,
+    originalSupplyRaw: configuration.launchSupplyRaw.toString(),
     originalSupplyFormatted: formatCompactTokenAmount(
       configuration.launchSupplyRaw,
       configuration.token,
     ),
-    originalSupplyRaw: configuration.launchSupplyRaw.toString(),
+    currentTotalSupplyRaw: currentTotalSupplyRaw.toString(),
+    currentTotalSupplyFormatted: formatCompactTokenAmount(
+      currentTotalSupplyRaw,
+      configuration.token,
+    ),
+    indexedBurnTotalRaw: indexedBurnTotalRaw.toString(),
+    indexedBurnTotalFormatted: formatCompactTokenAmount(
+      indexedBurnTotalRaw,
+      configuration.token,
+    ),
+    calculatedBurnTotalRaw: calculatedBurnTotalRaw.toString(),
+    calculatedBurnTotalFormatted: formatCompactTokenAmount(
+      calculatedBurnTotalRaw,
+      configuration.token,
+    ),
     percentSupplyBurned: formatPercentBurned(
       indexedBurnTotalRaw,
       configuration.launchSupplyRaw,
     ),
+    burnTransactionCount: transactions.length,
+    latestBurnTimestamp: latestBurn?.timestamp ?? null,
+    latestBurnAmountFormatted: latestBurn?.amountBurnedFormatted ?? null,
+    lastIndexedBlock,
+    generatedAt,
+    indexedFromBlock,
+    indexedThroughBlock,
+    dataConsistent: discrepancyRaw === 0n,
+    discrepancyRaw: discrepancyRaw.toString(),
+    deploymentBlock: configuration.deploymentBlock,
+    deploymentTimestamp: configuration.deploymentTimestamp,
   };
 }
 
@@ -632,9 +648,14 @@ export function createBurnSnapshot({
       'Indexed-through block cannot precede the configured deployment block.',
     );
   }
+  if (normalizedRawLogs.indexedFromBlock < configuration.deploymentBlock) {
+    throw new Error(
+      'Indexed-from block cannot precede the configured deployment block.',
+    );
+  }
   for (const log of normalizedRawLogs.logs) {
     if (
-      log.blockNumber < configuration.deploymentBlock ||
+      log.blockNumber < normalizedRawLogs.indexedFromBlock ||
       log.blockNumber > normalizedRawLogs.indexedThroughBlock
     ) {
       throw new Error(
@@ -657,6 +678,7 @@ export function createBurnSnapshot({
       configuration,
       currentTotalSupplyRaw: normalizedRawLogs.currentTotalSupplyRaw,
       generatedAt,
+      indexedFromBlock: normalizedRawLogs.indexedFromBlock,
       indexedThroughBlock: normalizedRawLogs.indexedThroughBlock,
       lastIndexedBlock,
       transactions: burns,

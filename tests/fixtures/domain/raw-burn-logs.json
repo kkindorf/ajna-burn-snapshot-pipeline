@@ -2,6 +2,7 @@
   "source": "fixture",
   "executionId": "fixture:1:130",
   "headBlock": 130,
+  "indexedFromBlock": 100,
   "indexedThroughBlock": 130,
   "currentTotalSupplyRaw": "4000000000000000000",
   "logs": [

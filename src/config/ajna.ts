@@ -35,10 +35,12 @@ export function createAjnaBurnPipelineConfiguration(): AjnaBurnPipelineConfigura
 
   return {
     etherscan: {
-      // Index the full token lifetime so totalSupply reconciliation is global.
+      // The public AJNA supply-reduction burn series begins on September 6,
+      // 2023. Earlier transfers to the zero address are allocation movements,
+      // not burns against this 1B launch-supply baseline.
       confirmationBlocks: 64,
       defaultApiBaseUrl: 'https://api.etherscan.io/v2/api',
-      historyStartBlock: 15_478_977,
+      historyStartBlock: 18_078_582,
       // Keep individual getLogs ranges small enough to avoid explorer timeouts.
       maxBlockRange: 250_000,
       maxPagesPerRange: 1_000,

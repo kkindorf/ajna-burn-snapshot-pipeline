@@ -124,12 +124,14 @@ describe('burn snapshot core', () => {
       invalidBurn,
       conflictingDuplicate,
       conflictingBlockLogPosition,
+      beforeIndexedRange,
       outsideSnapshotRange,
       overburn,
     ] = await Promise.all([
       loadCoreCase('invalidBurn'),
       loadCoreCase('conflictingDuplicate'),
       loadCoreCase('conflictingBlockLogPosition'),
+      loadCoreCase('beforeIndexedRange'),
       loadCoreCase('outsideSnapshotRange'),
       loadCoreCase('overburn'),
     ]);
@@ -147,6 +149,13 @@ describe('burn snapshot core', () => {
     expect(() =>
       dedupeAndSortBurnLogs(conflictingBlockLogPosition.logs),
     ).toThrow('Conflicting burn logs at block/log position: 100:0');
+    expect(() =>
+      createBurnSnapshot({
+        configuration: TEST_CONFIGURATION,
+        generatedAt: '2026-08-02T12:00:00.000Z',
+        rawLogs: beforeIndexedRange,
+      }),
+    ).toThrow('outside the configured snapshot range');
     expect(() =>
       createBurnSnapshot({
         configuration: TEST_CONFIGURATION,
@@ -173,6 +182,7 @@ describe('burn snapshot core', () => {
     expect(emptySnapshot.burns).toEqual([]);
     expect(emptySnapshot.summary).toMatchObject({
       burnTransactionCount: 0,
+      indexedFromBlock: 100,
       indexedThroughBlock: 130,
       lastIndexedBlock: 1,
       latestBurnAmountFormatted: null,
@@ -183,6 +193,7 @@ describe('burn snapshot core', () => {
     const beforeDeployment = await loadCoreCase('empty');
     const invalidRawLogs = {
       ...beforeDeployment,
+      indexedFromBlock: 0,
       indexedThroughBlock: 0,
     };
     expect(() =>

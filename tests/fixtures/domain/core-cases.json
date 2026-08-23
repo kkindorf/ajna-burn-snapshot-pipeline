@@ -3,6 +3,7 @@
     "source": "fixture",
     "executionId": "fixture:same-block",
     "headBlock": 130,
+    "indexedFromBlock": 100,
     "indexedThroughBlock": 130,
     "currentTotalSupplyRaw": "5000000000000000000",
     "logs": [
@@ -26,6 +27,7 @@
     "source": "fixture",
     "executionId": "fixture:mismatch",
     "headBlock": 130,
+    "indexedFromBlock": 100,
     "indexedThroughBlock": 130,
     "currentTotalSupplyRaw": "5000000000000000000",
     "logs": [
@@ -42,6 +44,7 @@
     "source": "fixture",
     "executionId": "fixture:conflict",
     "headBlock": 130,
+    "indexedFromBlock": 100,
     "indexedThroughBlock": 130,
     "currentTotalSupplyRaw": "4000000000000000000",
     "logs": [
@@ -65,6 +68,7 @@
     "source": "fixture",
     "executionId": "fixture:invalid",
     "headBlock": 130,
+    "indexedFromBlock": 100,
     "indexedThroughBlock": 130,
     "currentTotalSupplyRaw": "10000000000000000000",
     "logs": [
@@ -81,6 +85,7 @@
     "source": "fixture",
     "executionId": "fixture:overburn",
     "headBlock": 130,
+    "indexedFromBlock": 100,
     "indexedThroughBlock": 130,
     "currentTotalSupplyRaw": "0",
     "logs": [
@@ -97,6 +102,7 @@
     "source": "fixture",
     "executionId": "fixture:outside-range",
     "headBlock": 130,
+    "indexedFromBlock": 100,
     "indexedThroughBlock": 130,
     "currentTotalSupplyRaw": "9000000000000000000",
     "logs": [
@@ -113,6 +119,7 @@
     "source": "fixture",
     "executionId": "fixture:block-log-conflict",
     "headBlock": 130,
+    "indexedFromBlock": 100,
     "indexedThroughBlock": 130,
     "currentTotalSupplyRaw": "8000000000000000000",
     "logs": [
@@ -132,10 +139,28 @@
       }
     ]
   },
+  "beforeIndexedRange": {
+    "source": "fixture",
+    "executionId": "fixture:before-indexed-range",
+    "headBlock": 130,
+    "indexedFromBlock": 100,
+    "indexedThroughBlock": 130,
+    "currentTotalSupplyRaw": "9000000000000000000",
+    "logs": [
+      {
+        "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "logIndex": 0,
+        "blockNumber": 99,
+        "timestamp": 1690000000,
+        "amountBurnedRaw": "1000000000000000000"
+      }
+    ]
+  },
   "empty": {
     "source": "fixture",
     "executionId": "fixture:empty",
     "headBlock": 130,
+    "indexedFromBlock": 100,
     "indexedThroughBlock": 130,
     "currentTotalSupplyRaw": "10000000000000000000",
     "logs": []

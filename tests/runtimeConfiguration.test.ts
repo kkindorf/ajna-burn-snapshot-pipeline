@@ -1,9 +1,17 @@
 import { createAjnaBurnPipelineConfiguration } from '../src/config/ajna.js';
 import { createBurnPipelineRuntimeConfiguration } from '../src/config/runtime.js';
 
-const SOURCE_CONFIGURATION = createAjnaBurnPipelineConfiguration().etherscan;
+const PIPELINE_CONFIGURATION = createAjnaBurnPipelineConfiguration();
+const SOURCE_CONFIGURATION = PIPELINE_CONFIGURATION.etherscan;
 
 describe('burn pipeline runtime configuration', () => {
+  it('uses the supply-reduction burn-series baseline rather than deployment', () => {
+    expect(SOURCE_CONFIGURATION.historyStartBlock).toBe(18_078_582);
+    expect(SOURCE_CONFIGURATION.historyStartBlock).toBeGreaterThan(
+      PIPELINE_CONFIGURATION.snapshot.deploymentBlock,
+    );
+  });
+
   it('fails immediately when the Etherscan API key is missing or blank', () => {
     const missingKey: NodeJS.ProcessEnv = {};
     const blankKey: NodeJS.ProcessEnv = { ETHERSCAN_API_KEY: '   ' };

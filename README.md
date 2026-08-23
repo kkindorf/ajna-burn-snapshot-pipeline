@@ -38,14 +38,16 @@ The boundaries are intentional:
   entrypoint supplies and validates runtime configuration, including the
   Etherscan key.
 
-`summary.json` keeps its existing fields and adds `indexedThroughBlock`, the
-finalized block through which source data was indexed. The `etherscanUrl`
+`summary.json` exposes `indexedFromBlock` and `indexedThroughBlock`, the
+inclusive source-coverage boundary for the snapshot. The `etherscanUrl`
 transaction-link field remains unchanged.
 
 ## Data-integrity guarantees
 
-- The provider indexes from AJNA deployment and only through a 64-block
-  confirmation boundary.
+- The provider indexes AJNA's configured supply-reduction burn series from
+  block `18,078,582` and only through a 64-block confirmation boundary.
+  Earlier transfers to the zero address are allocation movements and are not
+  part of the 1B launch-supply burn accounting.
 - It reads `totalSupply()` at that same finalized block independently of the
   transfer-log query. A supply/log discrepancy fails the sync before either
   public JSON file is published.
@@ -121,5 +123,5 @@ Vercel then serves the repository root as a static site.
 
 Before the first production deployment of this hardening release, run the
 **Refresh burn snapshot** workflow manually. This regenerates the checked-in
-artifacts with deployment-to-finality coverage, correctly ordered cumulative
+artifacts with burn-series-to-finality coverage, correctly ordered cumulative
 values, and the independent supply reconciliation check.

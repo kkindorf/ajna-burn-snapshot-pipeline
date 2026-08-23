@@ -16,6 +16,7 @@
     "generatedAt": "2026-08-02T12:00:00.000Z",
     "indexedBurnTotalFormatted": "6 AJNA",
     "indexedBurnTotalRaw": "6000000000000000000",
+    "indexedFromBlock": 100,
     "indexedThroughBlock": 130,
     "lastIndexedBlock": 130,
     "latestBurnAmountFormatted": "3 AJNA",

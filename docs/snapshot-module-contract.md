@@ -93,8 +93,8 @@ Each declared output has a `schemaId` and semantic `schemaVersion` in
 
 Public outputs must provide or be paired with a freshness and coverage signal
 appropriate to their domain. For example, AJNA's `summary.json` supplies
-`generatedAt` and `indexedThroughBlock`; these bind `burns.json` to a specific
-finalized coverage boundary.
+`generatedAt`, `indexedFromBlock`, and `indexedThroughBlock`; these bind
+`burns.json` to a specific finalized coverage boundary.
 
 Do not silently repurpose a public output path. Publish a major schema version
 and coordinate consumer migration when compatibility cannot be preserved.

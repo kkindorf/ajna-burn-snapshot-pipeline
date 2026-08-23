@@ -352,7 +352,7 @@ function createResponseError(
 function parseEtherscanLogEntity(
   value: unknown,
   options: EtherscanBurnLogParsingOptions,
-): BurnLogRecord {
+): BurnLogRecord | null {
   if (!isRecord(value)) {
     throw new Error('Invalid Etherscan burn transfer record.');
   }
@@ -438,9 +438,9 @@ function parseEtherscanLogEntity(
 
   const amountBurnedRaw = parseUint256HexWord(data, 'transfer amount');
   if (amountBurnedRaw === 0n) {
-    throw new Error(
-      `Zero-value burn transfer is not indexable: ${transactionHash}`,
-    );
+    // ERC-20 permits zero-value Transfer events. They do not alter supply and
+    // must not be included in a burn snapshot.
+    return null;
   }
 
   return {
@@ -475,7 +475,16 @@ export function parseEtherscanBurnLogs(
     throw new Error('Invalid Etherscan burn log block range.');
   }
 
-  return records.map((record) => parseEtherscanLogEntity(record, options));
+  const logs: BurnLogRecord[] = [];
+
+  for (const record of records) {
+    const log = parseEtherscanLogEntity(record, options);
+    if (log !== null) {
+      logs.push(log);
+    }
+  }
+
+  return logs;
 }
 
 function parseHeadBlockResponse(payload: unknown): number {
@@ -622,6 +631,7 @@ export class EtherscanBurnProvider implements BurnLogProvider {
       currentTotalSupplyRaw,
       executionId: `etherscan:${this.options.chainId}:${indexedThroughBlock}`,
       headBlock,
+      indexedFromBlock: this.options.historyStartBlock,
       indexedThroughBlock,
       logs,
       source: 'etherscan',

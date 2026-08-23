@@ -14,7 +14,8 @@
     "adapter": "etherscan-v2",
     "network": "ethereum-mainnet",
     "chainId": 1,
-    "coverage": "from-deployment"
+    "coverage": "supply-reduction-burn-series",
+    "coverageStartBlock": 18078582
   },
   "finality": {
     "strategy": "confirmation-depth",
@@ -38,10 +39,11 @@
       "id": "summary",
       "path": "data/summary.json",
       "schemaId": "ajna-burn-summary",
-      "schemaVersion": "1.0.0",
+      "schemaVersion": "1.1.0",
       "stability": "public",
       "freshness": {
         "generatedAtField": "generatedAt",
+        "coverageStartField": "indexedFromBlock",
         "coverageField": "indexedThroughBlock"
       }
     },
