@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2026-08-02T12:00:00.000Z",
+  "executionId": "fixture:1:130",
+  "summary": {
+    "burnTransactionCount": 2,
+    "calculatedBurnTotalFormatted": "6 AJNA",
+    "calculatedBurnTotalRaw": "6000000000000000000",
+    "chainId": 1,
+    "contractAddress": "0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079",
+    "currentTotalSupplyFormatted": "4 AJNA",
+    "currentTotalSupplyRaw": "4000000000000000000",
+    "dataConsistent": true,
+    "deploymentBlock": 1,
+    "deploymentTimestamp": 1,
+    "discrepancyRaw": "0",
+    "generatedAt": "2026-08-02T12:00:00.000Z",
+    "indexedBurnTotalFormatted": "6 AJNA",
+    "indexedBurnTotalRaw": "6000000000000000000",
+    "indexedThroughBlock": 130,
+    "lastIndexedBlock": 130,
+    "latestBurnAmountFormatted": "3 AJNA",
+    "latestBurnTimestamp": 1700000000,
+    "originalSupplyFormatted": "10 AJNA",
+    "originalSupplyRaw": "10000000000000000000",
+    "percentSupplyBurned": "60.000%"
+  },
+  "burns": [
+    {
+      "amountBurnedFormatted": "3 AJNA",
+      "amountBurnedRaw": "3000000000000000000",
+      "blockNumber": 100,
+      "cumulativeBurnedFormatted": "3 AJNA",
+      "cumulativeBurnedRaw": "3000000000000000000",
+      "date": "Jul 22, 2023",
+      "etherscanUrl": "https://explorer.fixture.test/tx/0xaaa0000000000000000000000000000000000000000000000000000000000001",
+      "remainingSupplyFormatted": "7 AJNA",
+      "remainingSupplyRaw": "7000000000000000000",
+      "timestamp": 1690000000,
+      "transactionHash": "0xaaa0000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "amountBurnedFormatted": "3 AJNA",
+      "amountBurnedRaw": "3000000000000000000",
+      "blockNumber": 130,
+      "cumulativeBurnedFormatted": "6 AJNA",
+      "cumulativeBurnedRaw": "6000000000000000000",
+      "date": "Nov 14, 2023",
+      "etherscanUrl": "https://explorer.fixture.test/tx/0xbbb0000000000000000000000000000000000000000000000000000000000002",
+      "remainingSupplyFormatted": "4 AJNA",
+      "remainingSupplyRaw": "4000000000000000000",
+      "timestamp": 1700000000,
+      "transactionHash": "0xbbb0000000000000000000000000000000000000000000000000000000000002"
+    }
+  ]
+}

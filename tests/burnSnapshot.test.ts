@@ -1,128 +1,283 @@
 import {
-  buildBurnTransactions,
-  calculateBurnSummary,
   calculateRemainingSupplyRaw,
-  groupBurnLogsByTransaction,
-} from '../src/lib/burns.js';
-import {
+  createBurnSnapshot,
+  dedupeAndSortBurnLogs,
   formatCompactTokenAmount,
   formatPercentBurned,
 } from '../src/lib/format.js';
-import type { BurnLogRecord } from '../src/types/burn.js';
+import type {
+  BurnSnapshotConfiguration,
+  TokenMetadata,
+} from '../src/types/burn.js';
+import { parseRawBurnLogsFixture } from './fixtures/domainFixture.js';
+import {
+  loadJsonFixture,
+  requireArray,
+  requireInteger,
+  requireProperty,
+  requireRecord,
+  requireString,
+} from './fixtures/loadJsonFixture.js';
 
-const AJNA = 10n ** 18n;
-const ORIGINAL_SUPPLY = 10n * AJNA;
-const FIRST_HASH =
-  '0xaaa0000000000000000000000000000000000000000000000000000000000001';
-const SECOND_HASH =
-  '0xbbb0000000000000000000000000000000000000000000000000000000000002';
+const TEST_CONFIGURATION: BurnSnapshotConfiguration = {
+  chainId: 1,
+  contractAddress: '0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079',
+  deploymentBlock: 1,
+  deploymentTimestamp: 1,
+  launchSupplyRaw: 10n * 10n ** 18n,
+  token: {
+    decimals: 18,
+    symbol: 'AJNA',
+  },
+  transactionUrlForHash(transactionHash): string {
+    return `https://explorer.fixture.test/tx/${transactionHash}`;
+  },
+};
 
-const burnLogs: BurnLogRecord[] = [
-  {
-    transactionHash: FIRST_HASH,
-    logIndex: 0,
-    blockNumber: 100,
-    amountBurnedRaw: 1n * AJNA,
-  },
-  {
-    transactionHash: FIRST_HASH,
-    logIndex: 1,
-    blockNumber: 100,
-    amountBurnedRaw: 2n * AJNA,
-  },
-  {
-    transactionHash: SECOND_HASH,
-    logIndex: 0,
-    blockNumber: 130,
-    amountBurnedRaw: 3n * AJNA,
-  },
-  {
-    transactionHash: SECOND_HASH,
-    logIndex: 0,
-    blockNumber: 130,
-    amountBurnedRaw: 3n * AJNA,
-  },
-];
-
-const timestampsByBlock = new Map<number, number>([
-  [100, 1_690_000_000],
-  [130, 1_700_000_000],
-]);
-
-function buildTransactions(originalSupplyRaw = ORIGINAL_SUPPLY) {
-  return buildBurnTransactions(
-    groupBurnLogsByTransaction(burnLogs),
-    timestampsByBlock,
-    originalSupplyRaw,
+async function loadCoreCase(name: string) {
+  const fixture = requireRecord(
+    await loadJsonFixture('./domain/core-cases.json'),
+    'core cases fixture',
+  );
+  return parseRawBurnLogsFixture(
+    requireProperty(fixture, name, 'core cases fixture'),
   );
 }
 
-describe('burn snapshot construction', () => {
-  it('deduplicates logs and aggregates multiple transfers from the same transaction', () => {
-    const transactions = buildTransactions();
+function toJsonValue(value: unknown): unknown {
+  return JSON.parse(JSON.stringify(value));
+}
 
-    expect(transactions).toHaveLength(2);
-    expect(transactions[0]).toEqual({
-      transactionHash: FIRST_HASH,
-      blockNumber: 100,
-      timestamp: 1_690_000_000,
-      date: 'Jul 22, 2023',
-      amountBurnedRaw: (3n * AJNA).toString(),
-      amountBurnedFormatted: '3 AJNA',
-      cumulativeBurnedRaw: (3n * AJNA).toString(),
-      cumulativeBurnedFormatted: '3 AJNA',
-      remainingSupplyRaw: (7n * AJNA).toString(),
-      remainingSupplyFormatted: '7 AJNA',
-      etherscanUrl: `https://etherscan.io/tx/${FIRST_HASH}`,
+function tokenFromFixture(value: unknown): TokenMetadata {
+  const token = requireRecord(value, 'formatting token');
+  return {
+    decimals: requireInteger(
+      requireProperty(token, 'decimals', 'formatting token'),
+      'formatting token.decimals',
+    ),
+    symbol: requireString(
+      requireProperty(token, 'symbol', 'formatting token'),
+      'formatting token.symbol',
+    ),
+  };
+}
+
+describe('burn snapshot core', () => {
+  it('creates the complete deterministic public snapshot from a local domain fixture', async () => {
+    const [rawFixture, expectedSnapshot] = await Promise.all([
+      loadJsonFixture('./domain/raw-burn-logs.json'),
+      loadJsonFixture('./domain/expected-snapshot.json'),
+    ]);
+
+    const snapshot = createBurnSnapshot({
+      configuration: TEST_CONFIGURATION,
+      generatedAt: '2026-08-02T12:00:00.000Z',
+      rawLogs: parseRawBurnLogsFixture(rawFixture),
     });
-    expect(transactions[1].cumulativeBurnedRaw).toBe((6n * AJNA).toString());
-    expect(transactions[1].remainingSupplyRaw).toBe((4n * AJNA).toString());
+
+    expect(toJsonValue(snapshot)).toEqual(expectedSnapshot);
   });
 
-  it('produces the existing summary contract and consistency values', () => {
-    const transactions = buildTransactions();
-    const summary = calculateBurnSummary(
-      transactions,
-      1,
-      '0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079',
-      ORIGINAL_SUPPLY,
-      4n * AJNA,
-      15_478_977,
-      1_662_397_146,
-      '2026-08-02T12:00:00.000Z',
-      130,
-    );
+  it('keeps same-block burns in log-index order while calculating cumulative values', async () => {
+    const snapshot = createBurnSnapshot({
+      configuration: TEST_CONFIGURATION,
+      generatedAt: '2026-08-02T12:00:00.000Z',
+      rawLogs: await loadCoreCase('sameBlock'),
+    });
 
-    expect(summary).toMatchObject({
-      originalSupplyRaw: ORIGINAL_SUPPLY.toString(),
-      currentTotalSupplyRaw: (4n * AJNA).toString(),
-      indexedBurnTotalRaw: (6n * AJNA).toString(),
-      calculatedBurnTotalRaw: (6n * AJNA).toString(),
-      percentSupplyBurned: '60.000%',
-      burnTransactionCount: 2,
-      latestBurnTimestamp: 1_700_000_000,
-      lastIndexedBlock: 130,
-      dataConsistent: true,
-      discrepancyRaw: '0',
+    expect(
+      snapshot.burns.map((burn) => ({
+        cumulativeBurnedRaw: burn.cumulativeBurnedRaw,
+        transactionHash: burn.transactionHash,
+      })),
+    ).toEqual([
+      {
+        cumulativeBurnedRaw: '2000000000000000000',
+        transactionHash:
+          '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      },
+      {
+        cumulativeBurnedRaw: '5000000000000000000',
+        transactionHash:
+          '0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+      },
+    ]);
+  });
+
+  it('preserves independent supply reconciliation mismatches in the summary', async () => {
+    const snapshot = createBurnSnapshot({
+      configuration: TEST_CONFIGURATION,
+      generatedAt: '2026-08-02T12:00:00.000Z',
+      rawLogs: await loadCoreCase('mismatchedSupply'),
+    });
+
+    expect(snapshot.summary).toMatchObject({
+      calculatedBurnTotalRaw: '5000000000000000000',
+      dataConsistent: false,
+      discrepancyRaw: '-1000000000000000000',
+      indexedBurnTotalRaw: '6000000000000000000',
     });
   });
 
-  it('requires a timestamp for every burn block', () => {
+  it('fails closed for invalid, conflicting, and over-burn fixture data', async () => {
+    const [
+      invalidBurn,
+      conflictingDuplicate,
+      conflictingBlockLogPosition,
+      outsideSnapshotRange,
+      overburn,
+    ] = await Promise.all([
+      loadCoreCase('invalidBurn'),
+      loadCoreCase('conflictingDuplicate'),
+      loadCoreCase('conflictingBlockLogPosition'),
+      loadCoreCase('outsideSnapshotRange'),
+      loadCoreCase('overburn'),
+    ]);
+
     expect(() =>
-      buildBurnTransactions(
-        groupBurnLogsByTransaction(burnLogs),
-        new Map(),
-        ORIGINAL_SUPPLY,
-      ),
-    ).toThrow('Missing timestamp for block 100');
+      createBurnSnapshot({
+        configuration: TEST_CONFIGURATION,
+        generatedAt: '2026-08-02T12:00:00.000Z',
+        rawLogs: invalidBurn,
+      }),
+    ).toThrow('zero-value burn logs are not allowed');
+    expect(() => dedupeAndSortBurnLogs(conflictingDuplicate.logs)).toThrow(
+      'Conflicting duplicate burn log',
+    );
+    expect(() =>
+      dedupeAndSortBurnLogs(conflictingBlockLogPosition.logs),
+    ).toThrow('Conflicting burn logs at block/log position: 100:0');
+    expect(() =>
+      createBurnSnapshot({
+        configuration: TEST_CONFIGURATION,
+        generatedAt: '2026-08-02T12:00:00.000Z',
+        rawLogs: outsideSnapshotRange,
+      }),
+    ).toThrow('outside the configured snapshot range');
+    expect(() =>
+      createBurnSnapshot({
+        configuration: TEST_CONFIGURATION,
+        generatedAt: '2026-08-02T12:00:00.000Z',
+        rawLogs: overburn,
+      }),
+    ).toThrow('Indexed burns exceed launch supply');
   });
 
-  it('keeps supply math and formatting safe at boundary values', () => {
-    expect(calculateRemainingSupplyRaw(4n * AJNA, 6n * AJNA)).toBe(0n);
-    expect(formatCompactTokenAmount(403_437_095_453_346_600_523n)).toBe(
-      '403.4 AJNA',
+  it('returns a deterministic empty history and rejects indexing before deployment', async () => {
+    const emptySnapshot = createBurnSnapshot({
+      configuration: TEST_CONFIGURATION,
+      generatedAt: '2026-08-02T12:00:00.000Z',
+      rawLogs: await loadCoreCase('empty'),
+    });
+
+    expect(emptySnapshot.burns).toEqual([]);
+    expect(emptySnapshot.summary).toMatchObject({
+      burnTransactionCount: 0,
+      indexedThroughBlock: 130,
+      lastIndexedBlock: 1,
+      latestBurnAmountFormatted: null,
+      latestBurnTimestamp: null,
+      percentSupplyBurned: '0.000%',
+    });
+
+    const beforeDeployment = await loadCoreCase('empty');
+    const invalidRawLogs = {
+      ...beforeDeployment,
+      indexedThroughBlock: 0,
+    };
+    expect(() =>
+      createBurnSnapshot({
+        configuration: TEST_CONFIGURATION,
+        generatedAt: '2026-08-02T12:00:00.000Z',
+        rawLogs: invalidRawLogs,
+      }),
+    ).toThrow(
+      'Indexed-through block cannot precede the configured deployment block',
     );
-    expect(formatCompactTokenAmount(1_000_000_000n * AJNA)).toBe('1B AJNA');
-    expect(formatPercentBurned(12n * AJNA, 10n * AJNA)).toBe('100.000%');
+  });
+
+  it('formats fixture-driven token values exactly with bigint arithmetic', async () => {
+    const fixture = requireRecord(
+      await loadJsonFixture('./domain/formatting-cases.json'),
+      'formatting fixture',
+    );
+    const token = tokenFromFixture(
+      requireProperty(fixture, 'token', 'formatting fixture'),
+    );
+
+    for (const value of requireArray(
+      requireProperty(fixture, 'compactAmounts', 'formatting fixture'),
+      'formatting fixture.compactAmounts',
+    )) {
+      const testCase = requireRecord(value, 'compact amount case');
+      expect(
+        formatCompactTokenAmount(
+          requireString(
+            requireProperty(testCase, 'raw', 'compact amount case'),
+            'compact amount case.raw',
+          ),
+          token,
+        ),
+      ).toBe(
+        requireString(
+          requireProperty(testCase, 'expected', 'compact amount case'),
+          'compact amount case.expected',
+        ),
+      );
+    }
+
+    for (const value of requireArray(
+      requireProperty(fixture, 'percentages', 'formatting fixture'),
+      'formatting fixture.percentages',
+    )) {
+      const testCase = requireRecord(value, 'percentage case');
+      const indexed = BigInt(
+        requireString(
+          requireProperty(testCase, 'indexed', 'percentage case'),
+          'percentage case.indexed',
+        ),
+      );
+      const original = BigInt(
+        requireString(
+          requireProperty(testCase, 'original', 'percentage case'),
+          'percentage case.original',
+        ),
+      );
+      const expected = testCase.expected;
+
+      if (typeof expected === 'string') {
+        expect(formatPercentBurned(indexed, original)).toBe(expected);
+      } else {
+        expect(() => formatPercentBurned(indexed, original)).toThrow(
+          requireString(
+            requireProperty(testCase, 'error', 'percentage case'),
+            'percentage case.error',
+          ),
+        );
+      }
+    }
+
+    for (const value of requireArray(
+      requireProperty(fixture, 'remainingSupply', 'formatting fixture'),
+      'formatting fixture.remainingSupply',
+    )) {
+      const testCase = requireRecord(value, 'remaining supply case');
+      expect(() =>
+        calculateRemainingSupplyRaw(
+          BigInt(
+            requireString(
+              requireProperty(testCase, 'original', 'remaining supply case'),
+              'remaining supply case.original',
+            ),
+          ),
+          BigInt(
+            requireString(
+              requireProperty(testCase, 'burned', 'remaining supply case'),
+              'remaining supply case.burned',
+            ),
+          ),
+        ),
+      ).toThrow('Burned supply cannot exceed original supply');
+    }
   });
 });

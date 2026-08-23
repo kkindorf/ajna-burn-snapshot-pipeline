@@ -1,5 +1,47 @@
+export type HexAddress = `0x${string}`;
+export type TransactionHash = `0x${string}`;
+
+export interface TokenMetadata {
+  decimals: number;
+  symbol: string;
+}
+
+export interface BurnSnapshotConfiguration {
+  chainId: number;
+  contractAddress: HexAddress;
+  deploymentBlock: number;
+  deploymentTimestamp: number;
+  launchSupplyRaw: bigint;
+  token: TokenMetadata;
+  transactionUrlForHash: (transactionHash: TransactionHash) => string;
+}
+
+/**
+ * Canonical, source-neutral burn event data returned by a provider.
+ * Amounts remain bigint until the snapshot formatter creates JSON values.
+ */
+export interface BurnLogRecord {
+  transactionHash: TransactionHash;
+  logIndex: number;
+  blockNumber: number;
+  timestamp: number;
+  amountBurnedRaw: bigint;
+}
+
+/**
+ * The boundary between an ingestion provider and the snapshot formatter.
+ */
+export interface RawBurnLogs {
+  currentTotalSupplyRaw: bigint;
+  executionId: string;
+  headBlock: number;
+  indexedThroughBlock: number;
+  logs: readonly BurnLogRecord[];
+  source: string;
+}
+
 export interface BurnTransaction {
-  transactionHash: `0x${string}`;
+  transactionHash: TransactionHash;
   blockNumber: number;
   timestamp: number;
   date: string;
@@ -14,7 +56,7 @@ export interface BurnTransaction {
 
 export interface BurnSummary {
   chainId: number;
-  contractAddress: `0x${string}`;
+  contractAddress: HexAddress;
   originalSupplyRaw: string;
   originalSupplyFormatted: string;
   currentTotalSupplyRaw: string;
@@ -29,15 +71,16 @@ export interface BurnSummary {
   latestBurnAmountFormatted: string | null;
   lastIndexedBlock: number;
   generatedAt: string;
+  indexedThroughBlock: number;
   dataConsistent: boolean;
   discrepancyRaw: string;
   deploymentBlock: number;
   deploymentTimestamp: number;
 }
 
-export interface BurnLogRecord {
-  transactionHash: `0x${string}`;
-  logIndex: number;
-  blockNumber: number;
-  amountBurnedRaw: bigint;
+export interface BurnSnapshot {
+  burns: BurnTransaction[];
+  executionId: string;
+  generatedAt: string;
+  summary: BurnSummary;
 }
