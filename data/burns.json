@@ -9124,5 +9124,18 @@
     "remainingSupplyRaw": "981006659701537916843442910",
     "remainingSupplyFormatted": "981M AJNA",
     "etherscanUrl": "https://etherscan.io/tx/0x11f2920f6a6f6757e4ea609f2f320614b05db268ad49e5917b0cdf276801429d"
+  },
+  {
+    "transactionHash": "0x71b1b202fe439a33ef1d0f19d4b31b35fe162b3f42b8ca6afc94c538b50c6ce4",
+    "blockNumber": 25905226,
+    "timestamp": 1788540215,
+    "date": "Sep 4, 2026",
+    "amountBurnedRaw": "15615446350048445279760",
+    "amountBurnedFormatted": "15.6K AJNA",
+    "cumulativeBurnedRaw": "19008955744812131601836850",
+    "cumulativeBurnedFormatted": "19M AJNA",
+    "remainingSupplyRaw": "980991044255187868398163150",
+    "remainingSupplyFormatted": "981M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0x71b1b202fe439a33ef1d0f19d4b31b35fe162b3f42b8ca6afc94c538b50c6ce4"
   }
 ]
