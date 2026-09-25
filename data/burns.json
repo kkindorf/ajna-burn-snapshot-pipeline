@@ -9982,5 +9982,44 @@
     "remainingSupplyRaw": "979159964544447017018679024",
     "remainingSupplyFormatted": "979.2M AJNA",
     "etherscanUrl": "https://etherscan.io/tx/0x42d7ec87c05b89b2b6ab7b73991f99cf3603359a5e98ccdc262c2c49fcf49c98"
+  },
+  {
+    "transactionHash": "0xf3ef21d51e83eed45a5d4b824af19eee4594f7367efa9a2e6588479028cf60b1",
+    "blockNumber": 26044436,
+    "timestamp": 1790217983,
+    "date": "Sep 24, 2026",
+    "amountBurnedRaw": "2666416042669333319213",
+    "amountBurnedFormatted": "2.7K AJNA",
+    "cumulativeBurnedRaw": "20842701871595652314640189",
+    "cumulativeBurnedFormatted": "20.8M AJNA",
+    "remainingSupplyRaw": "979157298128404347685359811",
+    "remainingSupplyFormatted": "979.2M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0xf3ef21d51e83eed45a5d4b824af19eee4594f7367efa9a2e6588479028cf60b1"
+  },
+  {
+    "transactionHash": "0xb40c26b2b30b1e953627a682a276476329175f136c337ac0500f549b0cea70c9",
+    "blockNumber": 26045358,
+    "timestamp": 1790229107,
+    "date": "Sep 24, 2026",
+    "amountBurnedRaw": "3560985397168034006471",
+    "amountBurnedFormatted": "3.6K AJNA",
+    "cumulativeBurnedRaw": "20846262856992820348646660",
+    "cumulativeBurnedFormatted": "20.8M AJNA",
+    "remainingSupplyRaw": "979153737143007179651353340",
+    "remainingSupplyFormatted": "979.2M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0xb40c26b2b30b1e953627a682a276476329175f136c337ac0500f549b0cea70c9"
+  },
+  {
+    "transactionHash": "0x2eacfc37244dcab836124279def6ea9abab598256be44b8d6866efe06632455a",
+    "blockNumber": 26045658,
+    "timestamp": 1790232743,
+    "date": "Sep 24, 2026",
+    "amountBurnedRaw": "1024079108825913452267",
+    "amountBurnedFormatted": "1K AJNA",
+    "cumulativeBurnedRaw": "20847286936101646262098927",
+    "cumulativeBurnedFormatted": "20.8M AJNA",
+    "remainingSupplyRaw": "979152713063898353737901073",
+    "remainingSupplyFormatted": "979.2M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0x2eacfc37244dcab836124279def6ea9abab598256be44b8d6866efe06632455a"
   }
 ]
