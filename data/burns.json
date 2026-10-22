@@ -10164,5 +10164,44 @@
     "remainingSupplyRaw": "979080577916325385734398904",
     "remainingSupplyFormatted": "979.1M AJNA",
     "etherscanUrl": "https://etherscan.io/tx/0x4728872a524286056d7e43755292ae763e98a165d60ca42254674fcfb891e810"
+  },
+  {
+    "transactionHash": "0x7b13a300d990b9465890f4ac424b5e552ecc078c1dc5411637fa7fbe31ce6317",
+    "blockNumber": 26242627,
+    "timestamp": 1792605563,
+    "date": "Oct 21, 2026",
+    "amountBurnedRaw": "132270942304272592888",
+    "amountBurnedFormatted": "132.3 AJNA",
+    "cumulativeBurnedRaw": "20919554354616918538193984",
+    "cumulativeBurnedFormatted": "20.9M AJNA",
+    "remainingSupplyRaw": "979080445645383081461806016",
+    "remainingSupplyFormatted": "979.1M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0x7b13a300d990b9465890f4ac424b5e552ecc078c1dc5411637fa7fbe31ce6317"
+  },
+  {
+    "transactionHash": "0xd3dd067e66ed1bbd02d0fd7a6b4ede290609265b8d7e841d6dd8963ed612a0be",
+    "blockNumber": 26242741,
+    "timestamp": 1792606931,
+    "date": "Oct 21, 2026",
+    "amountBurnedRaw": "101407427901131594062",
+    "amountBurnedFormatted": "101.4 AJNA",
+    "cumulativeBurnedRaw": "20919655762044819669788046",
+    "cumulativeBurnedFormatted": "20.9M AJNA",
+    "remainingSupplyRaw": "979080344237955180330211954",
+    "remainingSupplyFormatted": "979.1M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0xd3dd067e66ed1bbd02d0fd7a6b4ede290609265b8d7e841d6dd8963ed612a0be"
+  },
+  {
+    "transactionHash": "0x2d045f7a965026238a80a69aa64154e785245349696b55c72015171cb24fbfec",
+    "blockNumber": 26242741,
+    "timestamp": 1792606931,
+    "date": "Oct 21, 2026",
+    "amountBurnedRaw": "101407313185154656972",
+    "amountBurnedFormatted": "101.4 AJNA",
+    "cumulativeBurnedRaw": "20919757169358004824445018",
+    "cumulativeBurnedFormatted": "20.9M AJNA",
+    "remainingSupplyRaw": "979080242830641995175554982",
+    "remainingSupplyFormatted": "979.1M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0x2d045f7a965026238a80a69aa64154e785245349696b55c72015171cb24fbfec"
   }
 ]
