@@ -10203,5 +10203,44 @@
     "remainingSupplyRaw": "979080242830641995175554982",
     "remainingSupplyFormatted": "979.1M AJNA",
     "etherscanUrl": "https://etherscan.io/tx/0x2d045f7a965026238a80a69aa64154e785245349696b55c72015171cb24fbfec"
+  },
+  {
+    "transactionHash": "0x19714840b7229765f0467456d8dcc6753e13b2c9faec056568a21dacb8ee697e",
+    "blockNumber": 26291875,
+    "timestamp": 1793198267,
+    "date": "Oct 28, 2026",
+    "amountBurnedRaw": "1170177123830957390010",
+    "amountBurnedFormatted": "1.2K AJNA",
+    "cumulativeBurnedRaw": "20920927346481835781835028",
+    "cumulativeBurnedFormatted": "20.9M AJNA",
+    "remainingSupplyRaw": "979079072653518164218164972",
+    "remainingSupplyFormatted": "979.1M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0x19714840b7229765f0467456d8dcc6753e13b2c9faec056568a21dacb8ee697e"
+  },
+  {
+    "transactionHash": "0x7e159d072ff4b3e175de1d8bd8a28b0a3e706cd8e20c215ce17e0aa941a085f3",
+    "blockNumber": 26291877,
+    "timestamp": 1793198291,
+    "date": "Oct 28, 2026",
+    "amountBurnedRaw": "471194483461847428367",
+    "amountBurnedFormatted": "471.2 AJNA",
+    "cumulativeBurnedRaw": "20921398540965297629263395",
+    "cumulativeBurnedFormatted": "20.9M AJNA",
+    "remainingSupplyRaw": "979078601459034702370736605",
+    "remainingSupplyFormatted": "979.1M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0x7e159d072ff4b3e175de1d8bd8a28b0a3e706cd8e20c215ce17e0aa941a085f3"
+  },
+  {
+    "transactionHash": "0xdfaf002a9f5fbac04672510688a4a50670424d67d85063a7612988bea1ddcc72",
+    "blockNumber": 26293004,
+    "timestamp": 1793211851,
+    "date": "Oct 28, 2026",
+    "amountBurnedRaw": "1342001265575143637222",
+    "amountBurnedFormatted": "1.3K AJNA",
+    "cumulativeBurnedRaw": "20922740542230872772900617",
+    "cumulativeBurnedFormatted": "20.9M AJNA",
+    "remainingSupplyRaw": "979077259457769127227099383",
+    "remainingSupplyFormatted": "979.1M AJNA",
+    "etherscanUrl": "https://etherscan.io/tx/0xdfaf002a9f5fbac04672510688a4a50670424d67d85063a7612988bea1ddcc72"
   }
 ]
